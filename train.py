@@ -56,4 +56,3 @@ def make_classifier(in_features, out_features, num_hidden_layers, p_dropout, lea
 new_classifier = make_classifier(in_features, out_fetures, args.hidden_units, args.dropout, args.leaky_relu)
 setattr(model, classifier_name, new_classifier)
 print(model)
-
