@@ -128,4 +128,4 @@ for e in range(args.epochs):
     print(f'Epoch {e + 1} - training loss={train_loss:.6f}' \
           f', validation accuracy={valid_accuracy:.6f} and loss={valid_loss:.6f}')
 
-print(model)
+print('Training completed.')
