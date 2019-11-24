@@ -31,6 +31,7 @@ parser.add_argument('--leaky_relu', action='store_const', const=True, default=Fa
 parser.add_argument('--dropout', type=float, action='store', default='0.5', help='Probability of dropout')
 parser.add_argument('--seed', type=int, action='store', default=None, help='Random seed for reproduceable results')
 parser.add_argument('--batch_size', type=int, action='store', default='128', help='Mini-batch size')
+parser.add_argument('--num_threads', type=int, action='store', default='1', help='Dataloader threads')
 
 args = parser.parse_args()
 
@@ -38,6 +39,7 @@ args = parser.parse_args()
 compute_device = torch.device('cpu')
 if args.gpu and torch.cuda.is_available():
     compute_device = torch.device('cuda:0')
+print(f'Will use device {compute_device} for computation')
 
 # Set reproduceable random seed, if specified
 if args.seed is not None:
@@ -91,30 +93,32 @@ valid_dataset = ImageFolder(root=valid_dir,
 
 # Data loaders
 train_dataloader = DataLoader(dataset=train_dataset,
-                              batch_size=BATCH_SIZE,
+                              batch_size=args.batch_size,
                               shuffle=True,
-                              num_workers=NUM_THREADS,
+                              num_workers=args.num_threads,
                               pin_memory=args.gpu)
 
 valid_dataloader = DataLoader(dataset=valid_dataset,
-                              batch_size=BATCH_SIZE,
+                              batch_size=args.batch_size,
                               shuffle=False,
-                              num_workers=NUM_THREADS,
+                              num_workers=args.num_threads,
                               pin_memory=args.gpu)
 
 # Setup loss function and optimiser
 criterion = nn.NLLLoss()
-optimiser = optim.Adam(model.fc.parameters(), lr=args.learning_rate)
+optimiser = optim.Adam(new_classifier.parameters(), lr=args.learning_rate)
 
 # Run training epochs
 best_valid_loss = float('inf')
 
 for e in range(args.epochs):
-    train_loss = net.train(train_dataloader, model,
+    train_loss = net.train(train_dataloader,
+                           model,
                            criterion=criterion,
                            optimiser=optimiser,
                            device=compute_device)
-    valid_accuracy, valid_loss = net.eval(valid_dataloader, model,
+    valid_accuracy, valid_loss = net.eval(valid_dataloader,
+                                          model,
                                           criterion=criterion,
                                           device=compute_device)
     if valid_loss < best_valid_loss:

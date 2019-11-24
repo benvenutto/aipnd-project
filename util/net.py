@@ -40,7 +40,7 @@ def make_classifier(in_features, out_features, num_hidden_layers, p_dropout, lea
             nn.init.kaiming_uniform_(param)
     return classifier
 
-def train(train_dl, model, criterion, optimiser, scheduler=None, device=torch.device('cpu')):
+def train(train_dl, model, criterion, optimiser, device=torch.device('cpu')):
     model = model.train()
     running_loss = 0
 
