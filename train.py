@@ -49,7 +49,10 @@ out_fetures = len(cat_to_name)
 
 # Load selected pre-trained model
 model_ref, classifier_name, in_features = ARCHITECTURES[args.arch]
-model = model_ref(pretrained=True)
+if args.arch is 'inception_v3':
+    model = model_ref(pretrained=True, aux_logits=False)
+else:
+    model = model_ref(pretrained=True)
 
 # Freeze model features
 for name, param in model.named_parameters():
