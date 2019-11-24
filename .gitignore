@@ -103,3 +103,5 @@ ENV/
 flower_data.tar.gz
 flowers/
 
+*-snapshot.pickle
+
