@@ -8,10 +8,7 @@ import json
 from util import net, state
 from torch import nn, optim
 
-# Some constants
-
-NUM_THREADS = 8
-BATCH_SIZE = 128
+# Architectures
 ARCHITECTURES = dict(vgg19=(models.vgg19_bn, 'classifier', 25088),
                      resnet152=(models.resnet152, 'fc', 2048),
                      densenet201=(models.densenet201, 'classifier', 1920),
