@@ -49,8 +49,10 @@ out_fetures = len(cat_to_name)
 
 # Load selected pre-trained model
 model_ref, classifier_name, in_features = ARCHITECTURES[args.arch]
-if args.arch is 'inception_v3':
+image_resize = 224
+if args.arch == 'inception_v3':
     model = model_ref(pretrained=True, aux_logits=False)
+    image_resize = 299
 else:
     model = model_ref(pretrained=True)
 
@@ -72,14 +74,14 @@ test_dir = args.data_dir + '/test'
 train_transforms = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(25),
-    transforms.RandomResizedCrop(size=(224, 224)),
+    transforms.RandomResizedCrop(size=(image_resize, image_resize)),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
 
 eval_transforms = transforms.Compose([
     transforms.Resize(size=256),
-    transforms.CenterCrop(size=(224, 224)),
+    transforms.CenterCrop(size=(image_resize, image_resize)),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
