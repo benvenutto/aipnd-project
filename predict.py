@@ -52,21 +52,21 @@ def predict(image_path, transforms, model, topk=5):
         output = model(batch)
         raw_proba = torch.exp(output)
         topk_preds = raw_proba.topk(topk, dim=1)
-        probs = topk_preds.values.cpu().squeeze().tolist()
-        classes = topk_preds.indices.cpu().squeeze().tolist()
-    return probs, classes
+        probs = topk_preds.values.cpu().squeeze(0).numpy()
+        idxs = topk_preds.indices.cpu().squeeze(0).numpy()
+    return probs, idxs
 
 # Get predictions
 
-probs, classes = predict(args.image_file, predict_transforms, model, topk=args.top_k)
+probs, idxs = predict(args.image_file, predict_transforms, model, topk=args.top_k)
 print(f'Predicted top {args.top_k} probabilities={probs}')
 
 # Load class descriptions
+classes = [index_to_class[idx] for idx in idxs]
 if args.category_names is not None:
     with open(args.category_names, 'r') as f:
         cat_to_name = json.load(f)
-    labels = [index_to_class[idx] for idx in classes]
-    names = [cat_to_name[label] for label in labels]
+    names = [cat_to_name[label] for label in classes]
     print(f'Predicted classes: {names}')
 else:
     print(f'Predicted classes={classes}')
