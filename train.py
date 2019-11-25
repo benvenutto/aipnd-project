@@ -1,6 +1,5 @@
 import argparse
 import torch
-import torchvision.models as models
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
@@ -8,17 +7,10 @@ import json
 from util import net, state
 from torch import nn, optim
 
-# Architectures
-ARCHITECTURES = dict(vgg19=(models.vgg19_bn, 'classifier', 25088),
-                     resnet152=(models.resnet152, 'fc', 2048),
-                     densenet201=(models.densenet201, 'classifier', 1920),
-                     inception_v3=(models.inception_v3, 'fc', 2048),
-                     resnext101=(models.resnext101_32x8d, 'fc', 2048))
-
 parser = argparse.ArgumentParser()
 parser.add_argument('data_dir', type=str, action='store', help='data directory')
 parser.add_argument('--save_dir', type=str, action='store', default='./', help='checkpoint save directory')
-parser.add_argument('--arch', type=str, action='store', default='vgg19', choices=list(ARCHITECTURES.keys()), help='CNN architecture')
+parser.add_argument('--arch', type=str, action='store', default='vgg19', choices=list(net.get_architectures()), help='CNN architecture')
 parser.add_argument('--learning_rate', type=float, action='store', default='0.003', help='learning rate')
 parser.add_argument('--hidden_units', type=int, action='store', default='1', help='number of hidden units')
 parser.add_argument('--epochs', type=int, action='store', default='3', help='number of epochs')
@@ -36,7 +28,7 @@ args = parser.parse_args()
 compute_device = torch.device('cpu')
 if args.gpu and torch.cuda.is_available():
     compute_device = torch.device('cuda:0')
-print(f'Will use device {compute_device} for computation')
+print(f"Will use device '{compute_device}' for computation")
 
 # Set reproduceable random seed, if specified
 if args.seed is not None:
@@ -45,25 +37,27 @@ if args.seed is not None:
 # Load class descriptions
 with open('cat_to_name.json', 'r') as f:
     cat_to_name = json.load(f)
-out_fetures = len(cat_to_name)
+out_features = len(cat_to_name)
 
 # Load selected pre-trained model
-model_ref, classifier_name, in_features = ARCHITECTURES[args.arch]
-image_resize = 224
-if args.arch == 'inception_v3':
-    model = model_ref(pretrained=True, aux_logits=False)
-    image_resize = 299
-else:
-    model = model_ref(pretrained=True)
+model, new_classifier, image_size = net.make_model(args.arch, out_features, args.hidden_units, args.dropout, args.leaky_relu)
 
-# Freeze model features
-for name, param in model.named_parameters():
-    param.requires_grad = False
-
-# Inject new classifier
-new_classifier = net.make_classifier(in_features, out_fetures, args.hidden_units, args.dropout, args.leaky_relu)
-setattr(model, classifier_name, new_classifier)
-model = model.to(device=compute_device)
+# model_ref, classifier_name, in_features = net.ARCHITECTURES[args.arch]
+# image_resize = 224
+# if args.arch == 'inception_v3':
+#     model = model_ref(pretrained=True, aux_logits=False)
+#     image_resize = 299
+# else:
+#     model = model_ref(pretrained=True)
+#
+# # Freeze model features
+# for name, param in model.named_parameters():
+#     param.requires_grad = False
+#
+# # Inject new classifier
+# new_classifier = net.make_classifier(in_features, out_fetures, args.hidden_units, args.dropout, args.leaky_relu)
+# setattr(model, classifier_name, new_classifier)
+# model = model.to(device=compute_device)
 
 # Setup data directories
 train_dir = args.data_dir + '/train'
@@ -74,14 +68,14 @@ test_dir = args.data_dir + '/test'
 train_transforms = transforms.Compose([
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(25),
-    transforms.RandomResizedCrop(size=(image_resize, image_resize)),
+    transforms.RandomResizedCrop(size=(image_size, image_size)),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
 
 eval_transforms = transforms.Compose([
     transforms.Resize(size=256),
-    transforms.CenterCrop(size=(image_resize, image_resize)),
+    transforms.CenterCrop(size=image_size),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])

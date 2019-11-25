@@ -1,20 +1,26 @@
 import torch
+from util import net
 
 SNAPSHOT_FILE = "snapshot.pickle"
 
-def save_snapshot(arch, model, optimiser, epoch, class_to_idx):
+def save_snapshot(arch, model, optimiser, image_size, epoch, class_to_idx):
     snapshot = {
+        'architecture': arch,
         'model': model.state_dict(),
+        'classifier_features': model['_classifier_features'],
+        'image_size': image_size,
         'optimiser': optimiser.state_dict(),
         'epoch': epoch,
         'class_to_idx': class_to_idx
     }
     torch.save(snapshot, f'{arch}-{SNAPSHOT_FILE}')
 
-def load_snapshot(checkpoint_name, model, optimiser, device):
-    snapshot = torch.load(f'{checkpoint_name}.pickle', map_location=device)
+def load_snapshot(checkpoint_file, device):
+    snapshot = torch.load(checkpoint_file, map_location=device)
+    arch = snapshot['arch']
+    classifier_params = snapshot[net.CLASSIFIER_PARAMETERS]
+    model = net.make_model(arch, **classifier_params)
     model.load_state_dict(snapshot['model'])
-    optimiser.load_state_dict(snapshot['optimiser'])
     class_to_index = snapshot['class_to_idx']
     index_to_class = {v: k for k, v in class_to_index.items()}
-    return snapshot['epoch'], class_to_index, index_to_class
+    return model, snapshot['image_size'], class_to_index, index_to_class

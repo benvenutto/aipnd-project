@@ -3,15 +3,17 @@ import torch
 import torchvision.models as models
 import json
 from util import net, state
+from PIL import Image
+import torchvision.transforms as transforms
 
 # Some constants
-
 ARCHITECTURES = dict(vgg19=(models.vgg19_bn, 'classifier', 25088),
                      resnet152=(models.resnet152, 'fc', 2048),
                      densenet201=(models.densenet201, 'classifier', 1920),
                      inception_v3=(models.inception_v3, 'fc', 2048),
                      resnext101=(models.resnext101_32x8d, 'fc', 2048))
 
+# CLI Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('image_file', type=str, action='store', help='image file')
 parser.add_argument('checkpoint_file', type=str, action='store', help='checkpoint file')
@@ -38,3 +40,14 @@ out_fetures = len(cat_to_name)
 
 # Load checkpoint
 model = state.load_snapshot(args.checkpoint_file)
+
+# Open and process image
+eval_transforms = transforms.Compose([
+    transforms.Resize(size=256),
+    transforms.CenterCrop(size=image_size),
+    transforms.ToTensor(),
+    transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+])
+pil_image = Image.open(args.image_file)
+tensor = eval_transforms(pil_image)
+
