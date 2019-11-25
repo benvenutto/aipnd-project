@@ -34,6 +34,7 @@ out_fetures = len(cat_to_name)
 
 # Load checkpoint
 model, shortest_side, image_size, class_to_index, index_to_class = state.load_snapshot(args.checkpoint_file, device=compute_device)
+model.eval()
 
 # Open and process image
 predict_transforms = transforms.Compose([

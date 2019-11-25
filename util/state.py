@@ -22,6 +22,7 @@ def load_snapshot(checkpoint_file, device):
     classifier_params = snapshot['classifier_parameters']
     model, _, shortest_side, image_size = net.make_model(arch, **classifier_params)
     model.load_state_dict(snapshot['model'])
+    model = model.to(device=device)
     class_to_index = snapshot['class_to_idx']
     index_to_class = {v: k for k, v in class_to_index.items()}
     return model, shortest_side, image_size, class_to_index, index_to_class
