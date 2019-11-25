@@ -41,23 +41,7 @@ out_features = len(cat_to_name)
 
 # Load selected pre-trained model
 model, new_classifier, image_size = net.make_model(args.arch, out_features, args.hidden_units, args.dropout, args.leaky_relu)
-
-# model_ref, classifier_name, in_features = net.ARCHITECTURES[args.arch]
-# image_resize = 224
-# if args.arch == 'inception_v3':
-#     model = model_ref(pretrained=True, aux_logits=False)
-#     image_resize = 299
-# else:
-#     model = model_ref(pretrained=True)
-#
-# # Freeze model features
-# for name, param in model.named_parameters():
-#     param.requires_grad = False
-#
-# # Inject new classifier
-# new_classifier = net.make_classifier(in_features, out_fetures, args.hidden_units, args.dropout, args.leaky_relu)
-# setattr(model, classifier_name, new_classifier)
-# model = model.to(device=compute_device)
+model = model.to(device=compute_device)
 
 # Setup data directories
 train_dir = args.data_dir + '/train'
