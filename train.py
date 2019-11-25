@@ -102,7 +102,7 @@ for e in range(args.epochs):
                                           criterion=criterion,
                                           device=compute_device)
     if valid_loss < best_valid_loss:
-        state.save_snapshot(args.arch, model, optimiser, e, train_dataset.class_to_idx)
+        state.save_snapshot(args.arch, model, optimiser, image_size, e, train_dataset.class_to_idx)
         best_valid_loss = valid_loss
 
     print(f'Epoch {e + 1} - training loss={train_loss:.6f}' \
