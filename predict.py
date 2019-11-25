@@ -63,5 +63,5 @@ def predict(image_path, transforms, model, topk=5):
 
 # Get predictions
 
-probs, classes = predict(args.image_file, predict_transforms, model)
+probs, classes = predict(args.image_file, predict_transforms, model, topk=args.top_k)
 print(f'Predicted top-k probabilities={probs}, and predicted classes={classes}')
