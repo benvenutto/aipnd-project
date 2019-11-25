@@ -33,11 +33,11 @@ with open('cat_to_name.json', 'r') as f:
 out_fetures = len(cat_to_name)
 
 # Load checkpoint
-model, image_size, class_to_index, index_to_class = state.load_snapshot(args.checkpoint_file, device=compute_device)
+model, shortest_side, image_size, class_to_index, index_to_class = state.load_snapshot(args.checkpoint_file, device=compute_device)
 
 # Open and process image
 predict_transforms = transforms.Compose([
-    transforms.Resize(size=256),
+    transforms.Resize(size=shortest_side),
     transforms.CenterCrop(size=image_size),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
