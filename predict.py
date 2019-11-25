@@ -10,7 +10,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('image_file', type=str, action='store', help='image file')
 parser.add_argument('checkpoint_file', type=str, action='store', help='checkpoint file')
 parser.add_argument('--top_k', type=int, action='store', default='1', help='top K scores')
-parser.add_argument('--category_names', type=str, action='store', help='file mapping categories to names')
+parser.add_argument('--category_names', type=str, action='store', default=None, help='file mapping categories to names')
 parser.add_argument('--gpu', action='store_const', const=True, default=False, help='Enable GPU')
 
 parser.add_argument('--seed', type=int, action='store', default=None, help='Random seed for reproduceable results')
@@ -26,11 +26,6 @@ print(f'Will use device {compute_device} for computation')
 # Set reproduceable random seed, if specified
 if args.seed is not None:
     net.make_reproduceable(args.seed)
-
-# Load class descriptions
-with open('cat_to_name.json', 'r') as f:
-    cat_to_name = json.load(f)
-out_fetures = len(cat_to_name)
 
 # Load checkpoint
 model, shortest_side, image_size, class_to_index, index_to_class = state.load_snapshot(args.checkpoint_file, device=compute_device)
@@ -64,4 +59,14 @@ def predict(image_path, transforms, model, topk=5):
 # Get predictions
 
 probs, classes = predict(args.image_file, predict_transforms, model, topk=args.top_k)
-print(f'Predicted top-k probabilities={probs}, and predicted classes={classes}')
+print(f'Predicted top {args.top_k} probabilities={probs}')
+
+# Load class descriptions
+if args.category_names is not None:
+    with open(args.category_names, 'r') as f:
+        cat_to_name = json.load(f)
+    labels = [index_to_class[idx] for idx in classes]
+    names = [cat_to_name[label] for label in labels]
+    print(f'Predicted classes: {names}')
+else:
+    print(f'Predicted classes={classes}')
