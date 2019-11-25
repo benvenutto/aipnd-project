@@ -18,7 +18,7 @@ def save_snapshot(arch, model, optimiser, shortest_side, image_size, epoch, clas
 
 def load_snapshot(checkpoint_file, device):
     snapshot = torch.load(checkpoint_file, map_location=device)
-    arch = snapshot['arch']
+    arch = snapshot['architecture']
     classifier_params = snapshot['classifier_parameters']
     model = net.make_model(arch, **classifier_params)
     model.load_state_dict(snapshot['model'])
