@@ -11,8 +11,8 @@ def save_snapshot(arch, model, optimiser, epoch, class_to_idx):
     }
     torch.save(snapshot, f'{arch}-{SNAPSHOT_FILE}')
 
-def load_snapshot(arch, model, optimiser, device):
-    snapshot = torch.load(f'{arch}-{SNAPSHOT_FILE}', map_location=device)
+def load_snapshot(checkpoint_name, model, optimiser, device):
+    snapshot = torch.load(f'{checkpoint_name}.pickle', map_location=device)
     model.load_state_dict(snapshot['model'])
     optimiser.load_state_dict(snapshot['optimiser'])
     class_to_index = snapshot['class_to_idx']

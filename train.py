@@ -16,7 +16,7 @@ ARCHITECTURES = dict(vgg19=(models.vgg19_bn, 'classifier', 25088),
                      resnext101=(models.resnext101_32x8d, 'fc', 2048))
 
 parser = argparse.ArgumentParser()
-parser.add_argument('data_dir', type=str, action='store', help='specify the data directory')
+parser.add_argument('data_dir', type=str, action='store', help='data directory')
 parser.add_argument('--save_dir', type=str, action='store', default='./', help='checkpoint save directory')
 parser.add_argument('--arch', type=str, action='store', default='vgg19', choices=list(ARCHITECTURES.keys()), help='CNN architecture')
 parser.add_argument('--learning_rate', type=float, action='store', default='0.003', help='learning rate')
