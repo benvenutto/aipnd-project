@@ -26,9 +26,11 @@ def make_model(arch, out_features, hidden_units, dropout, leaky_relu):
 
     # Create model
     model_ref, classifier_name, in_features = ARCHITECTURES[arch]
+    shortest_side = 255
     image_size = 224
     if arch == 'inception_v3':
         model = model_ref(pretrained=True, aux_logits=False)
+        shortest_side = 342
         image_size = 299
     else:
         model = model_ref(pretrained=True)
@@ -48,7 +50,7 @@ def make_model(arch, out_features, hidden_units, dropout, leaky_relu):
         'dropout': dropout,
         'leaky_relu': leaky_relu
     }
-    return model, new_classifier, image_size
+    return model, new_classifier, shortest_side, image_size
 
 def _make_classifier(in_features, out_features, num_hidden_layers, p_dropout, leaky_relu):
     layers = OrderedDict()

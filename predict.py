@@ -1,17 +1,9 @@
 import argparse
 import torch
-import torchvision.models as models
 import json
 from util import net, state
 from PIL import Image
 import torchvision.transforms as transforms
-
-# Some constants
-ARCHITECTURES = dict(vgg19=(models.vgg19_bn, 'classifier', 25088),
-                     resnet152=(models.resnet152, 'fc', 2048),
-                     densenet201=(models.densenet201, 'classifier', 1920),
-                     inception_v3=(models.inception_v3, 'fc', 2048),
-                     resnext101=(models.resnext101_32x8d, 'fc', 2048))
 
 # CLI Arguments
 parser = argparse.ArgumentParser()
@@ -20,6 +12,8 @@ parser.add_argument('checkpoint_file', type=str, action='store', help='checkpoin
 parser.add_argument('--top_k', type=int, action='store', default='1', help='top K scores')
 parser.add_argument('--category_names', type=str, action='store', help='file mapping categories to names')
 parser.add_argument('--gpu', action='store_const', const=True, default=False, help='Enable GPU')
+
+parser.add_argument('--seed', type=int, action='store', default=None, help='Random seed for reproduceable results')
 
 args = parser.parse_args()
 
@@ -39,15 +33,34 @@ with open('cat_to_name.json', 'r') as f:
 out_fetures = len(cat_to_name)
 
 # Load checkpoint
-model = state.load_snapshot(args.checkpoint_file)
+model, image_size, class_to_index, index_to_class = state.load_snapshot(args.checkpoint_file)
 
 # Open and process image
-eval_transforms = transforms.Compose([
+predict_transforms = transforms.Compose([
     transforms.Resize(size=256),
     transforms.CenterCrop(size=image_size),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
 ])
-pil_image = Image.open(args.image_file)
-tensor = eval_transforms(pil_image)
+
+def predict(image_path, transforms, model, topk=5):
+    ''' Predict the class (or classes) of an image using a trained deep learning model.
+    '''
+
+    # TODO: Implement the code to predict the class from an image file
+
+    image = Image.open(image_path)
+    tensor = transforms(image)
+    batch = tensor.unsqueeze(0).to(device=compute_device)
+    with torch.no_grad():
+        output = model(batch)
+        raw_proba = torch.exp(output)
+        topk_preds = raw_proba.topk(topk, dim=1)
+        probs = topk_preds.values.cpu().squeeze().tolist()
+        classes = topk_preds.indices.cpu().squeeze().tolist()
+    return probs, classes
+
+# Get predictions
+
+probs, classes = predict(args.image_file, predict_transforms, model)
 

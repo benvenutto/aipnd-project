@@ -40,7 +40,7 @@ with open('cat_to_name.json', 'r') as f:
 out_features = len(cat_to_name)
 
 # Load selected pre-trained model
-model, new_classifier, image_size = net.make_model(args.arch, out_features, args.hidden_units, args.dropout, args.leaky_relu)
+model, new_classifier, shortest_side, image_size = net.make_model(args.arch, out_features, args.hidden_units, args.dropout, args.leaky_relu)
 model = model.to(device=compute_device)
 
 # Setup data directories
@@ -58,7 +58,7 @@ train_transforms = transforms.Compose([
 ])
 
 eval_transforms = transforms.Compose([
-    transforms.Resize(size=256),
+    transforms.Resize(size=shortest_side),
     transforms.CenterCrop(size=image_size),
     transforms.ToTensor(),
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
@@ -102,7 +102,7 @@ for e in range(args.epochs):
                                           criterion=criterion,
                                           device=compute_device)
     if valid_loss < best_valid_loss:
-        state.save_snapshot(args.arch, model, optimiser, image_size, e, train_dataset.class_to_idx)
+        state.save_snapshot(args.arch, model, optimiser, shortest_side, image_size, e, train_dataset.class_to_idx)
         best_valid_loss = valid_loss
 
     print(f'Epoch {e + 1} - training loss={train_loss:.6f}' \
