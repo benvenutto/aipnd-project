@@ -11,7 +11,6 @@ ARCHITECTURES = dict(vgg19=(models.vgg19_bn, 'classifier', 25088),
                      densenet201=(models.densenet201, 'classifier', 1920),
                      inception_v3=(models.inception_v3, 'fc', 2048),
                      resnext101=(models.resnext101_32x8d, 'fc', 2048))
-CLASSIFIER_PARAMETERS = '_classifier_parameters'
 
 def get_architectures():
     return ARCHITECTURES.keys()

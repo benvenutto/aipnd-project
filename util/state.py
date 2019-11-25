@@ -7,7 +7,7 @@ def save_snapshot(arch, model, optimiser, image_size, epoch, class_to_idx):
     snapshot = {
         'architecture': arch,
         'model': model.state_dict(),
-        'classifier_features': model['_classifier_features'],
+        'classifier_features': model._classifier_features,
         'image_size': image_size,
         'optimiser': optimiser.state_dict(),
         'epoch': epoch,
